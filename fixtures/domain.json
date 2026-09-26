@@ -1,26 +1,179 @@
 {
   "domain": "campus-family-benefit",
-  "version": 1,
+  "version": 2,
   "facts": [
     "开学季家庭会在高校周边住宿并延伸城市游",
     "多地向新生和随行亲友提供跨业态优惠",
-    "录取通知书被用作现场资格凭证"
+    "录取通知书被用作现场资格凭证",
+    "同一张通知书可在住宿、文化场馆、交通接驳等业态按各自规则核销",
+    "线下场景可能断网，核销记录需要事后补传",
+    "商户月底按真实使用记录与平台结算"
   ],
   "entities": [
     "新生资格",
     "家庭成员",
     "城市权益",
-    "商户核销",
+    "权益规则版本",
+    "核销记录",
+    "撤销记录",
+    "退订记录",
+    "离线补传批次",
+    "异常复核",
+    "回访同意",
+    "家庭账单",
     "结算记录"
   ],
   "rules": [
-    "院校只返回资格结论",
-    "每项权益按自己的次数约束核销",
-    "未经同意不得把核销记录用于回访"
+    "院校只返回资格结论，学籍详情不出校",
+    "同行关系由家庭自行声明，平台不核验亲属关系",
+    "权益必须带额度、生效期和适用对象才能发布",
+    "核销时冻结当时的规则版本，撤销必须记录原因",
+    "每项权益按自己的次数约束核销，同一通知书可跨业态使用但不得突破单项次数",
+    "亲友优惠不得冒充新生权益，核销按适用对象校验",
+    "断网期间的离线核销须补传并按通知书与权益去重",
+    "跨商户并发核销以家庭与权益为粒度互斥",
+    "退订后占用的额度即时返还",
+    "异常记录先进入复核，复核结论才可调整账单与结算",
+    "未经同意不得把核销记录用于回访",
+    "家庭账单与商户结算都以真实核销记录为准，保持一致"
   ],
   "sample": {
     "record_id": "demo-008",
     "status": "已登记",
-    "source": "公开示例"
+    "source": "公开示例",
+    "eligibility": {
+      "token_id": "elg-demo-01",
+      "conclusion": "新生资格有效",
+      "issued_by": "示例院校",
+      "shared_fields": ["资格结论", "资格有效期"],
+      "withheld_fields": ["学籍号", "专业", "身份证件信息"]
+    },
+    "family_declaration": {
+      "declaration_id": "fam-demo-01",
+      "declared_by": "新生本人",
+      "members": [
+        { "alias": "同学A", "role": "新生" },
+        { "alias": "家长B", "role": "随行亲友" },
+        { "alias": "家长C", "role": "随行亲友" }
+      ]
+    },
+    "benefits": [
+      {
+        "benefit_id": "bnf-stay-01",
+        "category": "住宿",
+        "merchant_id": "mch-stay-01",
+        "title": "校园周边酒店首晚减免",
+        "audience": "新生",
+        "per_family_limit": 1,
+        "total_quota": 300,
+        "valid_from": "2026-08-25",
+        "valid_to": "2026-09-20",
+        "rule_version": "stay-r3"
+      },
+      {
+        "benefit_id": "bnf-culture-01",
+        "category": "文化场馆",
+        "merchant_id": "mch-museum-01",
+        "title": "城市博物馆家庭票",
+        "audience": "新生及随行亲友",
+        "per_family_limit": 4,
+        "total_quota": 5000,
+        "valid_from": "2026-08-25",
+        "valid_to": "2026-09-30",
+        "rule_version": "museum-r2"
+      },
+      {
+        "benefit_id": "bnf-transit-01",
+        "category": "交通接驳",
+        "merchant_id": "mch-shuttle-01",
+        "title": "机场车站接驳新生免费乘",
+        "audience": "新生",
+        "per_family_limit": 2,
+        "total_quota": 2000,
+        "valid_from": "2026-08-20",
+        "valid_to": "2026-09-15",
+        "rule_version": "shuttle-r5"
+      }
+    ],
+    "redemptions": [
+      {
+        "redemption_id": "rdm-1001",
+        "benefit_id": "bnf-stay-01",
+        "used_by": "同学A",
+        "applied_audience": "新生",
+        "rule_version_frozen": "stay-r3",
+        "channel": "在线",
+        "status": "已核销",
+        "occurred_at": "2026-09-01T19:20:00+08:00"
+      },
+      {
+        "redemption_id": "rdm-1002",
+        "benefit_id": "bnf-culture-01",
+        "used_by": "家长B",
+        "applied_audience": "随行亲友",
+        "rule_version_frozen": "museum-r2",
+        "channel": "在线",
+        "status": "已退订",
+        "occurred_at": "2026-09-02T10:05:00+08:00"
+      },
+      {
+        "redemption_id": "rdm-1003",
+        "benefit_id": "bnf-transit-01",
+        "used_by": "同学A",
+        "applied_audience": "新生",
+        "rule_version_frozen": "shuttle-r5",
+        "channel": "离线补传",
+        "offline_batch_id": "ofb-01",
+        "status": "已撤销",
+        "occurred_at": "2026-09-01T08:40:00+08:00",
+        "uploaded_at": "2026-09-01T12:30:00+08:00"
+      }
+    ],
+    "revocations": [
+      {
+        "redemption_id": "rdm-1003",
+        "reason": "补传去重时发现同一权益已超出家庭次数",
+        "rule_version_frozen": "shuttle-r5",
+        "revoked_at": "2026-09-01T12:35:00+08:00"
+      }
+    ],
+    "cancellations": [
+      {
+        "redemption_id": "rdm-1002",
+        "cancelled_at": "2026-09-02T18:00:00+08:00",
+        "quota_returned": true
+      }
+    ],
+    "reviews": [
+      {
+        "review_id": "rev-01",
+        "target_redemption_id": "rdm-1003",
+        "trigger": "离线补传与在线核销并发冲突",
+        "result": "维持撤销",
+        "closed_at": "2026-09-03T09:00:00+08:00"
+      }
+    ],
+    "consents": [
+      {
+        "declaration_id": "fam-demo-01",
+        "scope": "核销记录用于回访",
+        "granted": true,
+        "granted_at": "2026-09-02T20:00:00+08:00"
+      }
+    ],
+    "family_bill": {
+      "declaration_id": "fam-demo-01",
+      "lines": [
+        { "benefit_id": "bnf-stay-01", "status": "已核销", "counted": 1 },
+        { "benefit_id": "bnf-culture-01", "status": "已退订", "counted": 0 },
+        { "benefit_id": "bnf-transit-01", "status": "已撤销", "counted": 0 }
+      ]
+    },
+    "settlement": {
+      "period": "2026-09",
+      "merchant_id": "mch-stay-01",
+      "basis": "真实核销记录",
+      "accepted_redemptions": ["rdm-1001"]
+    }
   }
 }
