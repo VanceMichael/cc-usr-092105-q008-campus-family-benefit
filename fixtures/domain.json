@@ -1,26 +1,118 @@
 {
   "domain": "campus-family-benefit",
-  "version": 1,
+  "version": 2,
   "facts": [
     "开学季家庭会在高校周边住宿并延伸城市游",
     "多地向新生和随行亲友提供跨业态优惠",
-    "录取通知书被用作现场资格凭证"
+    "录取通知书被用作现场资格凭证",
+    "院校只确认新生资格结论，不外泄学籍详情",
+    "随行关系由家庭自行声明",
+    "商户发布的权益带额度、生效期和适用对象",
+    "同一张通知书可在住宿、文化场馆、交通接驳等业态分别核销",
+    "断网期间产生的核销先离线登记，恢复后补传"
   ],
   "entities": [
     "新生资格",
     "家庭成员",
     "城市权益",
+    "规则版本",
     "商户核销",
+    "撤销记录",
+    "异常复核",
+    "回访同意",
+    "家庭账单",
     "结算记录"
   ],
   "rules": [
     "院校只返回资格结论",
     "每项权益按自己的次数约束核销",
-    "未经同意不得把核销记录用于回访"
+    "未经同意不得把核销记录用于回访",
+    "亲友优惠不得冒充新生权益",
+    "核销时冻结所适用的规则版本",
+    "撤销核销必须记录原因",
+    "断网补传的核销按通知书和权益去重",
+    "退订后返还对应权益额度",
+    "结算以真实核销记录为准"
   ],
   "sample": {
-    "record_id": "demo-008",
-    "status": "已登记",
-    "source": "公开示例"
+    "notice": {
+      "notice_token": "demo-notice-2026-0001",
+      "note": "示例通知书标识，不对应真实个人"
+    },
+    "qualification": {
+      "result": "eligible",
+      "responded_by": "示例院校",
+      "enrollment_detail_shared": false
+    },
+    "family_declaration": {
+      "declared_by": "新生本人",
+      "companions": [
+        { "alias": "家长甲", "relation": "父母" },
+        { "alias": "家长乙", "relation": "父母" }
+      ]
+    },
+    "benefits": [
+      {
+        "benefit_id": "demo-benefit-hotel",
+        "merchant": "示例酒店",
+        "sector": "住宿",
+        "audience": "新生及随行亲友",
+        "quota": 1,
+        "valid_from": "2026-08-20",
+        "valid_to": "2026-09-30",
+        "rule_version": "hotel-2026.1"
+      },
+      {
+        "benefit_id": "demo-benefit-museum",
+        "merchant": "示例博物馆",
+        "sector": "文化场馆",
+        "audience": "新生本人",
+        "quota": 2,
+        "valid_from": "2026-08-20",
+        "valid_to": "2026-10-07",
+        "rule_version": "museum-2026.2"
+      },
+      {
+        "benefit_id": "demo-benefit-shuttle",
+        "merchant": "示例接驳车队",
+        "sector": "交通接驳",
+        "audience": "新生及随行亲友",
+        "quota": 4,
+        "valid_from": "2026-08-25",
+        "valid_to": "2026-09-15",
+        "rule_version": "shuttle-2026.1"
+      }
+    ],
+    "redemptions": [
+      {
+        "redemption_id": "demo-redemption-0001",
+        "benefit_id": "demo-benefit-hotel",
+        "notice_token": "demo-notice-2026-0001",
+        "used_by": "新生及随行亲友",
+        "rule_version_frozen": "hotel-2026.1",
+        "channel": "线上",
+        "status": "已核销",
+        "revocation_reason": null
+      },
+      {
+        "redemption_id": "demo-redemption-0002",
+        "benefit_id": "demo-benefit-shuttle",
+        "notice_token": "demo-notice-2026-0001",
+        "used_by": "随行亲友",
+        "rule_version_frozen": "shuttle-2026.1",
+        "channel": "离线补传",
+        "status": "已撤销",
+        "revocation_reason": "断网恢复后补传重复"
+      }
+    ],
+    "follow_up": {
+      "consent": true,
+      "scope": "仅本次核销体验回访"
+    },
+    "settlement": {
+      "period": "2026-09",
+      "merchant": "示例酒店",
+      "basis": "状态为已核销且未撤销的记录"
+    }
   }
 }
